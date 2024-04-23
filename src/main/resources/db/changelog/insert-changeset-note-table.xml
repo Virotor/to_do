@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="insert_into_note" author="admin">
+        <insert tableName="note">
+            <column name="title">Title</column>
+            <column name="description">Description first note</column>
+            <column name="content">Content second note</column>
+            <column name="date_create">2024-04-22</column>
+            <column name="date_completed">2024-04-23</column>
+        </insert>
+        <insert tableName="note">
+            <column name="title">Title</column>
+            <column name="description">Description sec note</column>
+            <column name="content">Content second note</column>
+            <column name="date_create">2024-04-23</column>
+            <column name="date_completed">2024-04-24</column>
+        </insert>
+        <insert tableName="note">
+            <column name="title">Title</column>
+            <column name="description">Description third note</column>
+            <column name="content">Content second note</column>
+            <column name="date_create">2024-04-24</column>
+            <column name="date_completed">2024-04-25</column>
+        </insert>
+        <insert tableName="note">
+            <column name="title">Title</column>
+            <column name="description">Description fourth note</column>
+            <column name="content">Content second note</column>
+            <column name="date_create">2024-05-22</column>
+            <column name="date_completed">2024-06-27</column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
