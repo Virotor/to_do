@@ -5,6 +5,11 @@ import com.lessons.to_do.DAO.DataBaseController;
 import com.lessons.to_do.models.Note;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -17,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class NoteRepository {
 
@@ -53,14 +59,18 @@ public class NoteRepository {
         }
     }
 
+    @Cacheable(value = "noteAll", key = "#root.targetClass")
     public List<Note> getAllNote() {
+        log.info("Получение всех пользователей");
         return dataBaseConnector.get(
                 "SELECT * FROM note",
                 new NoteRowMapper()
         );
     }
 
+    @Cacheable(value = "note", key = "#id")
     public Optional<Note> getNoteById(@NotNull Long id) {
+        log.info("Получение записи с id " + id);
         return dataBaseConnector.get(
                 "SELECT * FROM note " +
                         "where id = ? ",
@@ -69,16 +79,33 @@ public class NoteRepository {
         ).stream().findAny();
     }
 
-    public int deleteNoteById(@NotNull Long id){
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "note", key = "#id"),
+                    @CacheEvict(value = "noteAll", allEntries = true, key = "#root.targetClass")
+            }
+    )
+    public int deleteNoteById(@NotNull Long id) {
+        log.info("Удаление записи с id " + id);
         return dataBaseConnector.update(
                 """
                         delete from note as n where n.id = ?
                         """
-                ,id
+                , id
         );
     }
 
+    @Caching(
+            put = {
+                    @CachePut(value = "note", key="#noteToUpdate.id"),
+
+            },
+            evict = {
+                    @CacheEvict(value = "noteAll", key = "#root.targetClass")
+            }
+    )
     public Note updateNote(@NotNull Note noteToUpdate) {
+        log.info("Обновление записи " + noteToUpdate);
         return dataBaseConnector.update(
                 """                            
                         update note
@@ -93,14 +120,20 @@ public class NoteRepository {
         ) == 1 ? noteToUpdate : null;
     }
 
-    public int insertNote(@NotNull Note noteToInsert){
-        return  dataBaseConnector.insert(
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "noteAll", key = "#root.targetClass")
+            }
+    )
+    public int insertNote(@NotNull Note noteToInsert) {
+        log.info("Добавление записи  " + noteToInsert);
+        return dataBaseConnector.insert(
                 """
                         INSERT INTO note(title, description, content, date_create, date_completed)
                         VALUES (?,?,?,?,?)
                         """,
-                        Collections.singletonList(noteToInsert),
-                        new NoteInserter()
+                Collections.singletonList(noteToInsert),
+                new NoteInserter()
         );
     }
 }
