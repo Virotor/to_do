@@ -22,30 +22,30 @@ public class NoteController {
     @PostMapping("/add")
     @Schema(description = "Метод для добавления новой записи в бд")
     public ResponseEntity<?> addNewNote(@RequestBody ToDoRequest toDoRequest){
-        return  noteService.addNewNote(toDoRequest);
+        return  ResponseEntity.ok(noteService.addNewNote(toDoRequest));
     }
 
     @GetMapping("/all")
     @Schema(description = "Метод для получения всех записей")
     public ResponseEntity<?> getAllNote(){
-        return noteService.getAllNotes();
+        return ResponseEntity.ok(noteService.getAllNotes());
     }
 
-    @GetMapping("/get{id}")
+    @GetMapping("/get/{id}")
     @Schema(description = "Метод для получения записи с конкретным id")
     public ResponseEntity<?> getNoteById(@PathVariable Long id){
-        return noteService.getNoteById(id);
+        return ResponseEntity.ok(noteService.getNoteById(id));
     }
 
-    @DeleteMapping("/delete{id}")
+    @DeleteMapping("/delete/{id}")
     @Schema(description = "Метод для удаления записи с конкретным id")
     public ResponseEntity<?> deleteNoteById(@PathVariable Long id){
-        return  noteService.deleteNoteById(id);
+        return  ResponseEntity.ok(noteService.deleteNoteById(id));
     }
 
     @PostMapping("/update")
     @Schema(description = "Метод для изменения записи")
     public ResponseEntity<?> deleteNoteById(@RequestBody ToDoUpdateRequest toDoUpdateRequest){
-        return  noteService.updateNote(toDoUpdateRequest);
+        return  ResponseEntity.ok(noteService.updateNote(toDoUpdateRequest));
     }
 }

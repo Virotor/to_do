@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class NoteService {
 
     private final NoteRepository noteRepository;
 
-    public ResponseEntity<?> addNewNote(ToDoRequest toDoRequest) {
+    public String addNewNote(ToDoRequest toDoRequest) {
         int result = noteRepository.insertNote(
                 Note.builder()
                         .title(toDoRequest.getTitle())
@@ -28,28 +30,28 @@ public class NoteService {
                         .build()
         );
         if (result != 1) {
-            return ResponseEntity.badRequest().body("Не удалось создать запись");
+            return  "Не удалось создать запись";
         }
-        return ResponseEntity.ok("Задача добавлена");
+        return "Задача добавлена";
     }
 
-    public ResponseEntity<?> getAllNotes() {
-        return ResponseEntity.ok(noteRepository.getAllNote());
+    public List<Note> getAllNotes() {
+        return noteRepository.getAllNote();
     }
 
-    public ResponseEntity<?> getNoteById(Long id) {
-        return ResponseEntity.ok(noteRepository.getNoteById(id));
+    public Optional<Note> getNoteById(Long id) {
+        return noteRepository.getNoteById(id);
     }
 
-    public ResponseEntity<?> deleteNoteById(Long id) {
+    public String deleteNoteById(Long id) {
         int result = noteRepository.deleteNoteById(id);
         if (result != 1) {
-            return ResponseEntity.badRequest().body("Не удалось удалить запись");
+            return "Не удалось удалить запись";
         }
-        return ResponseEntity.ok("Запись удалена");
+        return "Запись удалена";
     }
 
-    public ResponseEntity<?> updateNote(ToDoUpdateRequest toDoUpdateRequest) {
+    public Note updateNote(ToDoUpdateRequest toDoUpdateRequest) {
         var result = noteRepository.updateNote(
                 Note.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())
@@ -60,8 +62,8 @@ public class NoteService {
                         .build()
         );
         if (result == null) {
-            return ResponseEntity.badRequest().body("Не удалось изменить запись");
+            throw new RuntimeException("Не удалось изменить запись");
         }
-        return ResponseEntity.ok(result);
+        return result;
     }
 }
