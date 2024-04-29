@@ -1,11 +1,15 @@
 package com.lessons.to_do;
 
-import com.lessons.to_do.models.Note;
+import com.lessons.to_do.models.ToDo;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -28,9 +32,21 @@ class ToDoApplicationTests {
     private TestRestTemplate restTemplate;
 
     @Container
-    public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()
+    @ServiceConnection
+    public static PostgreSQLContainer<?> postgreSQLContainer =  new PostgreSQLContainer<>("postgres")
             .withPassword("inmemory")
             .withUsername("inmemory");
+
+    @BeforeAll
+    static public void setContainer(){
+
+    }
+
+    @AfterAll
+    public static void  closeContainer(){
+        postgreSQLContainer.close();
+    }
+
     @DynamicPropertySource
     static void postgresqlProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
@@ -47,7 +63,7 @@ class ToDoApplicationTests {
     @Test
     void getOneNote() {
         var res = this.restTemplate.getForEntity("http://localhost:" + port + "/note/get/1",
-                Note.class);
+                ToDo.class);
         assertEquals(Objects.requireNonNull(res.getBody()).getId(), 1);
     }
 
@@ -56,7 +72,7 @@ class ToDoApplicationTests {
     void deleteOne() {
         this.restTemplate.delete("http://localhost:" + port + "/note/delete/2");
         var res = this.restTemplate.getForEntity("http://localhost:" + port + "/note/get/2",
-                Note.class);
+                ToDo.class);
         assertEquals(res.getBody(), null);
     }
 

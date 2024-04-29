@@ -3,11 +3,9 @@ package com.lessons.to_do.service;
 
 import com.lessons.to_do.DTO.ToDoRequest;
 import com.lessons.to_do.DTO.ToDoUpdateRequest;
-import com.lessons.to_do.models.Note;
-import com.lessons.to_do.repository.NoteRepository;
+import com.lessons.to_do.models.ToDo;
+import com.lessons.to_do.repository.ToDoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -18,11 +16,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NoteService {
 
-    private final NoteRepository noteRepository;
+    private final ToDoRepository toDoRepository;
 
     public String addNewNote(ToDoRequest toDoRequest) {
-        int result = noteRepository.insertNote(
-                Note.builder()
+        int result = toDoRepository.insertNote(
+                ToDo.builder()
                         .title(toDoRequest.getTitle())
                         .content(toDoRequest.getContent())
                         .description(toDoRequest.getDescription())
@@ -35,25 +33,25 @@ public class NoteService {
         return "Задача добавлена";
     }
 
-    public List<Note> getAllNotes() {
-        return noteRepository.getAllNote();
+    public List<ToDo> getAllNotes() {
+        return toDoRepository.getAllNote();
     }
 
-    public Optional<Note> getNoteById(Long id) {
-        return noteRepository.getNoteById(id);
+    public Optional<ToDo> getNoteById(Long id) {
+        return toDoRepository.getNoteById(id);
     }
 
     public String deleteNoteById(Long id) {
-        int result = noteRepository.deleteNoteById(id);
+        int result = toDoRepository.deleteNoteById(id);
         if (result != 1) {
             return "Не удалось удалить запись";
         }
         return "Запись удалена";
     }
 
-    public Note updateNote(ToDoUpdateRequest toDoUpdateRequest) {
-        var result = noteRepository.updateNote(
-                Note.builder()
+    public ToDo updateNote(ToDoUpdateRequest toDoUpdateRequest) {
+        var result = toDoRepository.updateNote(
+                ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())
                         .content(toDoUpdateRequest.getToDoRequest().getContent())
                         .description(toDoUpdateRequest.getToDoRequest().getDescription())

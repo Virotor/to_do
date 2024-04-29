@@ -1,8 +1,8 @@
 package com.lessons.to_do.repository;
 
 
-import com.lessons.to_do.DAO.DataBaseController;
-import com.lessons.to_do.models.Note;
+import com.lessons.to_do.DAO.DatabaseConnector;
+import com.lessons.to_do.models.ToDo;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +24,15 @@ import java.util.Optional;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class NoteRepository {
+public class ToDoRepository {
 
-    private final DataBaseController dataBaseConnector;
+    private final DatabaseConnector dataBaseConnector;
 
-    private static class NoteRowMapper implements RowMapper<Note> {
+    private static class ToDoRowMapper implements RowMapper<ToDo> {
 
         @Override
-        public Note mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return Note.builder()
+        public ToDo mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return ToDo.builder()
                     .id(rs.getLong("id"))
                     .dateOfCompleted(rs.getDate("date_completed"))
                     .content(rs.getString("content"))
@@ -43,10 +43,10 @@ public class NoteRepository {
         }
     }
 
-    private static class NoteInserter implements ParameterizedPreparedStatementSetter<Note> {
+    private static class ToDoSetter implements ParameterizedPreparedStatementSetter<ToDo> {
 
         @Override
-        public void setValues(PreparedStatement ps, Note argument) throws SQLException {
+        public void setValues(PreparedStatement ps, ToDo argument) throws SQLException {
             ps.setString(1, argument.getTitle());
             ps.setString(2, argument.getDescription());
             ps.setString(3, argument.getContent());
@@ -60,21 +60,21 @@ public class NoteRepository {
     }
 
     @Cacheable(value = "noteAll", key = "#root.targetClass")
-    public List<Note> getAllNote() {
+    public List<ToDo> getAllNote() {
         log.info("Получение всех пользователей");
-        return dataBaseConnector.get(
+        return dataBaseConnector.getConnect().query(
                 "SELECT * FROM note",
-                new NoteRowMapper()
+                new ToDoRowMapper()
         );
     }
 
     @Cacheable(value = "note", key = "#id")
-    public Optional<Note> getNoteById(@NotNull Long id) {
+    public Optional<ToDo> getNoteById(@NotNull Long id) {
         log.info("Получение записи с id " + id);
-        return dataBaseConnector.get(
+        return dataBaseConnector.getConnect().query(
                 "SELECT * FROM note " +
                         "where id = ? ",
-                new NoteRowMapper(),
+                new ToDoRowMapper(),
                 id
         ).stream().findAny();
     }
@@ -87,7 +87,7 @@ public class NoteRepository {
     )
     public int deleteNoteById(@NotNull Long id) {
         log.info("Удаление записи с id " + id);
-        return dataBaseConnector.update(
+        return dataBaseConnector.getConnect().update(
                 """
                         delete from note as n where n.id = ?
                         """
@@ -97,27 +97,27 @@ public class NoteRepository {
 
     @Caching(
             put = {
-                    @CachePut(value = "note", key="#noteToUpdate.id"),
+                    @CachePut(value = "note", key="#toDoToUpdate.id"),
 
             },
             evict = {
                     @CacheEvict(value = "noteAll", key = "#root.targetClass")
             }
     )
-    public Note updateNote(@NotNull Note noteToUpdate) {
-        log.info("Обновление записи " + noteToUpdate);
-        return dataBaseConnector.update(
+    public ToDo updateNote(@NotNull ToDo toDoToUpdate) {
+        log.info("Обновление записи " + toDoToUpdate);
+        return dataBaseConnector.getConnect().update(
                 """                            
                         update note
                         Set title = ?, description = ? , content = ? , date_completed = ?
                         where id = ?
                         """,
-                noteToUpdate.getTitle(),
-                noteToUpdate.getDescription(),
-                noteToUpdate.getContent(),
-                noteToUpdate.getDateOfCompleted(),
-                noteToUpdate.getId()
-        ) == 1 ? noteToUpdate : null;
+                toDoToUpdate.getTitle(),
+                toDoToUpdate.getDescription(),
+                toDoToUpdate.getContent(),
+                toDoToUpdate.getDateOfCompleted(),
+                toDoToUpdate.getId()
+        ) == 1 ? toDoToUpdate : null;
     }
 
     @Caching(
@@ -125,15 +125,15 @@ public class NoteRepository {
                     @CacheEvict(value = "noteAll", key = "#root.targetClass")
             }
     )
-    public int insertNote(@NotNull Note noteToInsert) {
-        log.info("Добавление записи  " + noteToInsert);
-        return dataBaseConnector.insert(
+    public int insertNote(@NotNull ToDo toDoToInsert) {
+        log.info("Добавление записи  " + toDoToInsert);
+        return dataBaseConnector.getConnect().update(
                 """
                         INSERT INTO note(title, description, content, date_create, date_completed)
                         VALUES (?,?,?,?,?)
                         """,
-                Collections.singletonList(noteToInsert),
-                new NoteInserter()
+                Collections.singletonList(toDoToInsert),
+                new ToDoSetter()
         );
     }
 }

@@ -31,6 +31,7 @@ public class NoteController {
         return ResponseEntity.ok(noteService.getAllNotes());
     }
 
+
     @GetMapping("/get/{id}")
     @Schema(description = "Метод для получения записи с конкретным id")
     public ResponseEntity<?> getNoteById(@PathVariable Long id){

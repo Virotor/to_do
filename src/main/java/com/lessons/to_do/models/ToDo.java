@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public final class Note implements Serializable {
+public final class ToDo implements Serializable {
 
     private Long id;
     private String title;
