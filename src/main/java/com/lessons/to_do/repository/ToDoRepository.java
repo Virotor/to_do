@@ -10,15 +10,13 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -28,43 +26,21 @@ public class ToDoRepository {
 
     private final DatabaseConnector dataBaseConnector;
 
-    private static class ToDoRowMapper implements RowMapper<ToDo> {
 
-        @Override
-        public ToDo mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return ToDo.builder()
-                    .id(rs.getLong("id"))
-                    .dateOfCompleted(rs.getDate("date_completed"))
-                    .content(rs.getString("content"))
-                    .description(rs.getString("description"))
-                    .dateOfCreated(rs.getDate("date_create"))
-                    .title(rs.getString("title"))
-                    .build();
-        }
-    }
-
-    private static class ToDoSetter implements ParameterizedPreparedStatementSetter<ToDo> {
-
-        @Override
-        public void setValues(PreparedStatement ps, ToDo argument) throws SQLException {
-            ps.setString(1, argument.getTitle());
-            ps.setString(2, argument.getDescription());
-            ps.setString(3, argument.getContent());
-            ps.setDate(4, new java.sql.Date(argument.getDateOfCreated().getTime()));
-            ps.setDate(5,
-                    argument.getDateOfCompleted() == null ?
-                            null
-                            :
-                            new java.sql.Date(argument.getDateOfCompleted().getTime()));
-        }
-    }
 
     @Cacheable(value = "noteAll", key = "#root.targetClass")
     public List<ToDo> getAllNote() {
         log.info("Получение всех пользователей");
         return dataBaseConnector.getConnect().query(
                 "SELECT * FROM note",
-                new ToDoRowMapper()
+                (rs, rowNum) -> ToDo.builder()
+                        .id(rs.getLong("id"))
+                        .dateOfCompleted(rs.getDate("date_completed"))
+                        .content(rs.getString("content"))
+                        .description(rs.getString("description"))
+                        .dateOfCreated(rs.getDate("date_create"))
+                        .title(rs.getString("title"))
+                        .build()
         );
     }
 
@@ -73,9 +49,16 @@ public class ToDoRepository {
         log.info("Получение записи с id " + id);
         return dataBaseConnector.getConnect().query(
                 "SELECT * FROM note " +
-                        "where id = ? ",
-                new ToDoRowMapper(),
-                id
+                        "where id = :id ",
+                Map.of("id", id),
+                (rs, rowNum) -> ToDo.builder()
+                        .id(rs.getLong("id"))
+                        .dateOfCompleted(rs.getDate("date_completed"))
+                        .content(rs.getString("content"))
+                        .description(rs.getString("description"))
+                        .dateOfCreated(rs.getDate("date_create"))
+                        .title(rs.getString("title"))
+                        .build()
         ).stream().findAny();
     }
 
@@ -89,9 +72,9 @@ public class ToDoRepository {
         log.info("Удаление записи с id " + id);
         return dataBaseConnector.getConnect().update(
                 """
-                        delete from note as n where n.id = ?
+                        delete from note as n where n.id = :id
                         """
-                , id
+                , Map.of("id", id)
         );
     }
 
@@ -109,14 +92,16 @@ public class ToDoRepository {
         return dataBaseConnector.getConnect().update(
                 """                            
                         update note
-                        Set title = ?, description = ? , content = ? , date_completed = ?
-                        where id = ?
+                        Set title = :title, description = :desc , content = :cont , date_completed = :date
+                        where id = :id
                         """,
-                toDoToUpdate.getTitle(),
-                toDoToUpdate.getDescription(),
-                toDoToUpdate.getContent(),
-                toDoToUpdate.getDateOfCompleted(),
-                toDoToUpdate.getId()
+                Map.of(
+                        "title", toDoToUpdate.getTitle(),
+                        "desc", toDoToUpdate.getDescription(),
+                        "cont", toDoToUpdate.getContent(),
+                        "date", toDoToUpdate.getDateOfCompleted(),
+                        "id", toDoToUpdate.getId()
+                )
         );
     }
 
@@ -130,10 +115,14 @@ public class ToDoRepository {
         return dataBaseConnector.getConnect().update(
                 """
                         INSERT INTO note(title, description, content, date_create, date_completed)
-                        VALUES (?,?,?, now(),?)
+                        VALUES ( :title , :desc , :cont, now(), :date)
                         """,
-                Collections.singletonList(toDoToInsert),
-                new ToDoSetter()
+                        Map.of(
+                                "title", toDoToInsert.getTitle(),
+                                "desc", toDoToInsert.getDescription(),
+                                "cont", toDoToInsert.getContent(),
+                                "date", toDoToInsert.getDateOfCompleted()
+                        )
         );
     }
 }
