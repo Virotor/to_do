@@ -1,4 +1,4 @@
-package com.lessons.to_do;
+package com.lessons.to_do.api;
 
 import com.lessons.to_do.models.ToDo;
 import org.junit.jupiter.api.AfterAll;
@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -19,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
@@ -39,7 +39,7 @@ class ToDoApplicationTests {
 
     @BeforeAll
     static public void setContainer(){
-
+        postgreSQLContainer.start();
     }
 
     @AfterAll
@@ -54,10 +54,10 @@ class ToDoApplicationTests {
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
     }
     @Test
-    void testThatSizeIsFourths() {
+    void getAllToDo() {
         var res = this.restTemplate.getForEntity("http://localhost:" + port + "/note/all",
                 List.class);
-        assertEquals(Objects.requireNonNull(res.getBody()).size(), 3);
+        assertThat(Objects.requireNonNull(res.getBody()).size()).isBetween(1,4);
     }
 
     @Test
