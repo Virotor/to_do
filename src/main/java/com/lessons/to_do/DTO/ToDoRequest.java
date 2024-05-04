@@ -1,13 +1,17 @@
 package com.lessons.to_do.DTO;
 
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +24,6 @@ public class ToDoRequest {
     @Size(min = 8, max = 255, message = "Длина названия должна быть от 8 до 255 символов")
     @NotBlank(message = "Название не может быть пустыми")
     private String title;
-
 
     @Schema(description = "Описание", example = "Задача для...")
     @Size(max = 255, message = "Длина опсиания должна быть не более 255 символов")

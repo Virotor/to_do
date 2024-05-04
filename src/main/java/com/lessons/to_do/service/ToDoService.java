@@ -5,6 +5,7 @@ import com.lessons.to_do.DTO.ToDoRequest;
 import com.lessons.to_do.DTO.ToDoUpdateRequest;
 import com.lessons.to_do.models.ToDo;
 import com.lessons.to_do.repository.ToDoRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,43 +15,34 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class NoteService {
+public class ToDoService {
 
     private final ToDoRepository toDoRepository;
 
-    public String addNewNote(ToDoRequest toDoRequest) {
-        int result = toDoRepository.insertNote(
+    public int addNewNote(@NonNull ToDoRequest toDoRequest) {
+        return  toDoRepository.insertNote(
                 ToDo.builder()
                         .title(toDoRequest.getTitle())
                         .content(toDoRequest.getContent())
                         .description(toDoRequest.getDescription())
-                        .dateOfCreated(new Date())
                         .build()
         );
-        if (result != 1) {
-            return  "Не удалось создать запись";
-        }
-        return "Задача добавлена";
     }
 
     public List<ToDo> getAllNotes() {
         return toDoRepository.getAllNote();
     }
 
-    public Optional<ToDo> getNoteById(Long id) {
+    public Optional<ToDo> getNoteById(@NonNull Long id) {
         return toDoRepository.getNoteById(id);
     }
 
-    public String deleteNoteById(Long id) {
-        int result = toDoRepository.deleteNoteById(id);
-        if (result != 1) {
-            return "Не удалось удалить запись";
-        }
-        return "Запись удалена";
+    public Integer deleteNoteById(@NonNull  Long id) {
+       return toDoRepository.deleteNoteById(id);
     }
 
-    public ToDo updateNote(ToDoUpdateRequest toDoUpdateRequest) {
-        var result = toDoRepository.updateNote(
+    public int updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
+        return toDoRepository.updateNote(
                 ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())
                         .content(toDoUpdateRequest.getToDoRequest().getContent())
@@ -59,9 +51,5 @@ public class NoteService {
                         .dateOfCompleted(toDoUpdateRequest.getDateOfCompleted())
                         .build()
         );
-        if (result == null) {
-            throw new RuntimeException("Не удалось изменить запись");
-        }
-        return result;
     }
 }

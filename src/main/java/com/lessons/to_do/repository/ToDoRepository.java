@@ -104,7 +104,7 @@ public class ToDoRepository {
                     @CacheEvict(value = "noteAll", key = "#root.targetClass")
             }
     )
-    public ToDo updateNote(@NotNull ToDo toDoToUpdate) {
+    public int updateNote(@NotNull ToDo toDoToUpdate) {
         log.info("Обновление записи " + toDoToUpdate);
         return dataBaseConnector.getConnect().update(
                 """                            
@@ -117,7 +117,7 @@ public class ToDoRepository {
                 toDoToUpdate.getContent(),
                 toDoToUpdate.getDateOfCompleted(),
                 toDoToUpdate.getId()
-        ) == 1 ? toDoToUpdate : null;
+        );
     }
 
     @Caching(
@@ -130,7 +130,7 @@ public class ToDoRepository {
         return dataBaseConnector.getConnect().update(
                 """
                         INSERT INTO note(title, description, content, date_create, date_completed)
-                        VALUES (?,?,?,?,?)
+                        VALUES (?,?,?, now(),?)
                         """,
                 Collections.singletonList(toDoToInsert),
                 new ToDoSetter()

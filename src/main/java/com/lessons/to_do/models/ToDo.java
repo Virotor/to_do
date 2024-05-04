@@ -14,9 +14,13 @@ import java.util.Date;
 @EqualsAndHashCode
 public final class ToDo implements Serializable {
 
+
     private Long id;
+
     private String title;
+
     private String description;
+
     private String content;
     private Date dateOfCreated;
     private Date dateOfCompleted;
