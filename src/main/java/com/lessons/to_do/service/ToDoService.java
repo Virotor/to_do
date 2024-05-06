@@ -9,7 +9,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +18,7 @@ public class ToDoService {
 
     private final ToDoRepository toDoRepository;
 
-    public int addNewNote(@NonNull ToDoRequest toDoRequest) {
+    public ToDo addNewNote(@NonNull ToDoRequest toDoRequest) {
         return  toDoRepository.insertNote(
                 ToDo.builder()
                         .title(toDoRequest.getTitle())
@@ -37,11 +36,11 @@ public class ToDoService {
         return toDoRepository.getNoteById(id);
     }
 
-    public Integer deleteNoteById(@NonNull  Long id) {
+    public ToDo deleteNoteById(@NonNull  Long id) {
        return toDoRepository.deleteNoteById(id);
     }
 
-    public int updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
+    public ToDo updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
         return toDoRepository.updateNote(
                 ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())

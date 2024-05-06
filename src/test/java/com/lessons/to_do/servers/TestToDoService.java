@@ -48,21 +48,22 @@ public class TestToDoService {
                 .content(toDoRequest.getContent())
                 .description(toDoRequest.getDescription())
                 .build();
-        when(mockedToDoRepository.insertNote(toDo)).thenReturn(1);
+        when(mockedToDoRepository.insertNote(toDo)).thenReturn(toDo);
         assertEquals(toDoService.addNewNote(toDoRequest), 1);
     }
 
     @Test
     public void testDelete(){
-        when(mockedToDoRepository.deleteNoteById(1L)).thenReturn(1);
-        assertEquals(toDoService.deleteNoteById(1L), 1);
+        ToDo toDo = new ToDo();
+        when(mockedToDoRepository.deleteNoteById(1L)).thenReturn(toDo);
+        assertEquals(toDoService.deleteNoteById(1L), toDo);
     }
 
 
     @Test
     public void testNotDelete(){
-        when(mockedToDoRepository.deleteNoteById(2L)).thenReturn(0);
-        assertEquals(toDoService.deleteNoteById(2L), 0);
+        when(mockedToDoRepository.deleteNoteById(2L)).thenReturn(null);
+        assertEquals(toDoService.deleteNoteById(2L), null);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class TestToDoService {
                 .id(toDoUpdateRequest.getId())
                 .build();
 
-        when(mockedToDoRepository.updateNote(toDo)).thenReturn(1);
+        when(mockedToDoRepository.updateNote(toDo)).thenReturn(toDo);
 
         assertEquals(toDoService.updateNote(toDoUpdateRequest), 1);
     }

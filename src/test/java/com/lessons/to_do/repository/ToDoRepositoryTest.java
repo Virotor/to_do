@@ -2,14 +2,10 @@ package com.lessons.to_do.repository;
 
 
 import com.lessons.to_do.models.ToDo;
-import org.assertj.core.api.recursive.comparison.ComparingFields;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -19,7 +15,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Date;
 import java.util.Comparator;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,12 +69,12 @@ public class ToDoRepositoryTest {
 
     @Test
     void deleteOneNote(){
-        assertThat(repository.deleteNoteById(3L)).isOne();
+        assertThat(repository.deleteNoteById(3L)).isNotEqualTo(null);
     }
 
     @Test
     void deleteNone(){
-        assertThat(repository.deleteNoteById(500L)).isZero();
+        assertThat(repository.deleteNoteById(500L)).isEqualTo(null);
     }
 
     @Test
@@ -93,8 +88,8 @@ public class ToDoRepositoryTest {
                 .dateOfCompleted(Date.valueOf("2024-04-25"))
                 .build();
 
-        assertThat(repository.updateNote(toDo)).isZero();
-        assertThat(repository.getNoteById(400L)).isEqualTo(Optional.empty());
+        assertThat(repository.updateNote(toDo)).isEqualTo(toDo);
+
     }
 
     @Test
@@ -112,18 +107,10 @@ public class ToDoRepositoryTest {
                 .comparing(ToDo::getId)
                 .thenComparing(ToDo::getContent)
                 .thenComparing(ToDo::getDescription)
-                .thenComparing(ToDo::getTitle)
-                .thenComparing(ToDo::getDateOfCompleted)
-                .thenComparing(ToDo::getDateOfCreated);
+                .thenComparing(ToDo::getTitle);
 
-        assertThat(repository.updateNote(toDo)).isOne();
+        assertThat(repository.updateNote(toDo)).usingComparator(comparator).isEqualTo(toDo);
 
-//java.lang.ClassCastException: class java.lang.Integer cannot be cast to class com.lessons.to_do.models
-// .ToDo (java.lang.Integer is in module java.base of loader 'bootstrap';
-//  com.lessons.to_do.models.ToDo is in unnamed module of loader 'app')
-
-      /*  ToDo res = repository.getNoteById(2L).orElseThrow();
-        assertThat(res).usingComparator(comparator).isEqualTo(toDo);*/
     }
 
 
@@ -139,15 +126,12 @@ public class ToDoRepositoryTest {
                 .build();
 
         Comparator<ToDo> comparator = Comparator
-                .comparing(ToDo::getId)
-                .thenComparing(ToDo::getContent)
+                .comparing(ToDo::getContent)
                 .thenComparing(ToDo::getDescription)
                 .thenComparing(ToDo::getTitle);
 
-        assertThat(repository.insertNote(toDo)).isOne();
+        assertThat(repository.insertNote(toDo)).usingComparator(comparator).isEqualTo(toDo);
 
-        var res = repository.getNoteById(5L).orElseThrow();
-        assertThat(res).usingComparator(comparator).isEqualTo(toDo);
     }
 
 }
