@@ -12,9 +12,13 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import javax.sql.DataSource;
 
 @SpringBootApplication
 @EnableCaching
+@EnableJpaRepositories("com.lessons.to_do.*")
 public class ToDoApplication {
 
     public static void main(String[] args) {
@@ -39,4 +43,7 @@ public class ToDoApplication {
         return configuration.buildSessionFactory(builder.build());
 
     }
+
+
+
 }

@@ -8,6 +8,7 @@ import com.lessons.to_do.repository.ToDoRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class ToDoService {
     private final ToDoRepository toDoRepository;
 
     public ToDo addNewNote(@NonNull ToDoRequest toDoRequest) {
-        return  toDoRepository.insertNote(
+        return  toDoRepository.save(
                 ToDo.builder()
                         .title(toDoRequest.getTitle())
                         .content(toDoRequest.getContent())
@@ -29,19 +30,19 @@ public class ToDoService {
     }
 
     public List<ToDo> getAllNotes() {
-        return toDoRepository.getAllNote();
+        return toDoRepository.findAll();
     }
 
     public Optional<ToDo> getNoteById(@NonNull Long id) {
-        return toDoRepository.getNoteById(id);
+        return toDoRepository.findById(id);
     }
 
-    public ToDo deleteNoteById(@NonNull  Long id) {
-       return toDoRepository.deleteNoteById(id);
+    public void deleteNoteById(@NonNull  Long id) {
+        toDoRepository.deleteById(id);
     }
 
     public ToDo updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
-        return toDoRepository.updateNote(
+        return toDoRepository.saveAndFlush(
                 ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())
                         .content(toDoUpdateRequest.getToDoRequest().getContent())

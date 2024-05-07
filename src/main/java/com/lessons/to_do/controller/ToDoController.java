@@ -41,7 +41,8 @@ public class ToDoController {
     @DeleteMapping("/delete/{id}")
     @Schema(description = "Метод для удаления записи с конкретным id")
     public ResponseEntity<?> deleteNoteById(@PathVariable Long id){
-        return  ResponseEntity.ok(toDoService.deleteNoteById(id));
+        toDoService.deleteNoteById(id);
+        return  ResponseEntity.ok("Запись успешно удалена");
     }
 
     @PostMapping("/update")
