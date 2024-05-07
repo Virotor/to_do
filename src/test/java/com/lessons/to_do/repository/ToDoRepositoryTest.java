@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers
+@Transactional
 public class ToDoRepositoryTest {
 
     @Container
@@ -30,6 +32,8 @@ public class ToDoRepositoryTest {
 
     @BeforeEach
     void setUp() {
+
+
     }
 
     @AfterAll
@@ -46,7 +50,7 @@ public class ToDoRepositoryTest {
 
     @Test
     void getAllToDo() {
-        assertThat(repository.getAllNote()).hasSizeBetween(3,5);
+        assertThat(repository.getAllNote()).hasSizeBetween(3,5).hasSizeBetween(1,10);
     }
 
     @Test
@@ -59,7 +63,12 @@ public class ToDoRepositoryTest {
                 .dateOfCreated(Date.valueOf("2024-04-22"))
                 .dateOfCompleted(Date.valueOf("2024-04-23"))
                 .build();
-        assertThat(repository.getNoteById(1L)).contains(toDo);
+        Comparator<ToDo> comparator = Comparator
+                .comparing(ToDo::getId)
+                .thenComparing(ToDo::getContent)
+                .thenComparing(ToDo::getDescription)
+                .thenComparing(ToDo::getTitle);
+        assertThat(repository.getNoteById(1L).get()).usingComparator(comparator).isEqualTo(toDo);
     }
 
     @Test
@@ -69,12 +78,13 @@ public class ToDoRepositoryTest {
 
     @Test
     void deleteOneNote(){
-        assertThat(repository.deleteNoteById(3L)).isNotEqualTo(null);
+
+        assertThat(repository.deleteNoteById(3L)).isNotNull();
     }
 
     @Test
     void deleteNone(){
-        assertThat(repository.deleteNoteById(500L)).isEqualTo(null);
+        assertThat(repository.deleteNoteById(500L)).isNull();
     }
 
     @Test
@@ -88,7 +98,13 @@ public class ToDoRepositoryTest {
                 .dateOfCompleted(Date.valueOf("2024-04-25"))
                 .build();
 
-        assertThat(repository.updateNote(toDo)).isEqualTo(toDo);
+        Comparator<ToDo> comparator = Comparator
+                .comparing(ToDo::getId)
+                .thenComparing(ToDo::getContent)
+                .thenComparing(ToDo::getDescription)
+                .thenComparing(ToDo::getTitle);
+
+        assertThat(repository.updateNote(toDo)).usingComparator(comparator).isEqualTo(toDo);
 
     }
 

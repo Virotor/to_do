@@ -49,7 +49,7 @@ public class TestToDoService {
                 .description(toDoRequest.getDescription())
                 .build();
         when(mockedToDoRepository.insertNote(toDo)).thenReturn(toDo);
-        assertEquals(toDoService.addNewNote(toDoRequest), 1);
+        assertEquals(toDoService.addNewNote(toDoRequest), toDo);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestToDoService {
 
         when(mockedToDoRepository.updateNote(toDo)).thenReturn(toDo);
 
-        assertEquals(toDoService.updateNote(toDoUpdateRequest), 1);
+        assertEquals(toDoService.updateNote(toDoUpdateRequest), toDo);
     }
 
     @Test
