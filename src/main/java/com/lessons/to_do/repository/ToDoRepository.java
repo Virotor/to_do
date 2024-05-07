@@ -51,21 +51,23 @@ public class ToDoRepository {
     public ToDo deleteNoteById(@NotNull Long id) {
         log.info("Удаление записи с id " + id);
         Session session = sessionFactory.openSession();
-
-
         try{
-            getNoteById(id).ifPresent((e)->{
+            var res = getNoteById(id);
+            if(res.isPresent()){
                 Transaction tx1 = session.beginTransaction();
-                session.remove(e);
+                session.remove(res.get());
                 tx1.commit();
                 session.close();
-            });
-            ToDo toDo;
+            }
+            else {
+                throw  new IllegalArgumentException("Todo not found =");
+            }
+            return  res.get();
         }
-        catch (NullPointerException e){
-            log.error("Todo no found = " + id);
+        catch (IllegalArgumentException e){
+            log.error("Todo not found = " + id);
+            return null;
         }
-        return null;
     }
 
     @Caching(
