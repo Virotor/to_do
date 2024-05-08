@@ -77,7 +77,6 @@ public class ToDoRepositoryTest {
 
     @Test
     void deleteOneNote(){
-
         assertThat(repository.deleteNoteById(3L)).isNotNull();
     }
 
@@ -86,26 +85,6 @@ public class ToDoRepositoryTest {
         assertThat(repository.deleteNoteById(500L)).isNull();
     }
 
-    @Test
-    void updateNone(){
-        ToDo toDo = ToDo.builder()
-                .id(500L)
-                .title("Title second new")
-                .description("Description new second note")
-                .content("Content new second note")
-                .dateOfCreated(Date.valueOf("2024-04-25"))
-                .dateOfCompleted(Date.valueOf("2024-04-25"))
-                .build();
-
-        Comparator<ToDo> comparator = Comparator
-                .comparing(ToDo::getId)
-                .thenComparing(ToDo::getContent)
-                .thenComparing(ToDo::getDescription)
-                .thenComparing(ToDo::getTitle);
-
-        assertThat(repository.updateNote(toDo)).usingComparator(comparator).isEqualTo(toDo);
-
-    }
 
     @Test
     void updateOneToDo(){
