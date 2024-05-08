@@ -1,11 +1,10 @@
-package com.lessons.to_do.servers;
+package com.lessons.to_do.service;
 
 
 
 import com.lessons.to_do.DTO.ToDoRequest;
 import com.lessons.to_do.DTO.ToDoUpdateRequest;
 import com.lessons.to_do.repository.ToDoRepository;
-import com.lessons.to_do.service.ToDoService;
 import com.lessons.to_do.models.ToDo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TestToDoService {
@@ -55,17 +53,22 @@ public class TestToDoService {
 
     @Test
     public void testDelete(){
-//        ToDo toDo = new ToDo();
-//        when(mockedToDoRepository.deleteById(1L));
-//        verify(mockedToDoRepository).deleteNoteById(1L)
-//        assertEquals(toDoService.deleteNoteById(1L));
+        ToDo toDo = new ToDo();
+        when(mockedToDoRepository.findById(1L)).thenReturn(Optional.of(toDo));
+        this.toDoService.deleteNoteById(1L);
+        verify(mockedToDoRepository).findById(1L);
+        verify(mockedToDoRepository).deleteById(1L);
     }
 
 
     @Test
     public void testNotDelete(){
-//        when(mockedToDoRepository.deleteNoteById(2L)).thenReturn(null);
-//        assertEquals(toDoService.deleteNoteById(2L), null);
+        ToDo toDo = new ToDo();
+        when(mockedToDoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrowsExactly(IllegalArgumentException.class, ()->toDoService.deleteNoteById(1L));
+        verify(mockedToDoRepository).findById(1L);
+        //verify(mockedToDoRepository).deleteById(1L);
     }
 
     @Test
@@ -85,10 +88,12 @@ public class TestToDoService {
                 .dateOfCompleted(toDoUpdateRequest.getDateOfCompleted())
                 .id(toDoUpdateRequest.getId())
                 .build();
-
-        when(mockedToDoRepository.save(toDo)).thenReturn(toDo);
+        when(mockedToDoRepository.findById(1L)).thenReturn(Optional.of(toDo));
+        when(mockedToDoRepository.saveAndFlush(toDo)).thenReturn(toDo);
 
         assertEquals(toDoService.updateNote(toDoUpdateRequest), toDo);
+        verify(mockedToDoRepository).findById(1L);
+        verify(mockedToDoRepository).saveAndFlush(toDo);
     }
 
     @Test

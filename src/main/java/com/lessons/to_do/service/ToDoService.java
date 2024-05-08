@@ -5,10 +5,10 @@ import com.lessons.to_do.DTO.ToDoRequest;
 import com.lessons.to_do.DTO.ToDoUpdateRequest;
 import com.lessons.to_do.models.ToDo;
 import com.lessons.to_do.repository.ToDoRepository;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,11 +37,14 @@ public class ToDoService {
         return toDoRepository.findById(id);
     }
 
+    @Transactional
     public void deleteNoteById(@NonNull  Long id) {
+        var toDo = this.toDoRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         toDoRepository.deleteById(id);
     }
 
     public ToDo updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
+        this.toDoRepository.findById(toDoUpdateRequest.getId()).orElseThrow(IllegalArgumentException::new);
         return toDoRepository.saveAndFlush(
                 ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())

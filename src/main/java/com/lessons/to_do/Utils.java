@@ -1,7 +1,7 @@
 package com.lessons.to_do;
 
 
-import com.lessons.to_do.repository.ToDoRepositoryImpl;
+import com.lessons.to_do.repository.ToDoRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +14,11 @@ public class Utils implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ToDoApplication.class);
 
-    private final ToDoRepositoryImpl toDoRepositoryImpl;
+    private final ToDoRepository toDoRepository;
 
     @Override
     public void run(String... args) {
-        toDoRepositoryImpl.getAllNote().forEach(e ->
+        toDoRepository.findAll().forEach(e ->
                 log.info(e.toString())
         );
     }

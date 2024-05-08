@@ -16,7 +16,7 @@ import java.util.Date;
 @EqualsAndHashCode
 @Entity
 @Table(name = "note")
-public final class ToDo implements Serializable {
+public  class ToDo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

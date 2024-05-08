@@ -26,7 +26,7 @@ public class JpaConfiguration {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("com.lessons.to_do.repository");
+        factory.setPackagesToScan("com.lessons.to_do.models");
         factory.setDataSource(dataSource);
         factory.afterPropertiesSet();
 
@@ -40,4 +40,28 @@ public class JpaConfiguration {
         return txManager;
     }
 
+//    @Bean
+//    public SchemaManager getSchemaManager(){
+//        SchemaManager schemaManager = new SchemaManager() {
+//            @Override
+//            public void create(boolean createSchemas) {
+//
+//            }
+//
+//            @Override
+//            public void drop(boolean dropSchemas) {
+//
+//            }
+//
+//            @Override
+//            public void validate() throws SchemaValidationException {
+//
+//            }
+//
+//            @Override
+//            public void truncate() {
+//
+//            }
+//        }
+//    }
 }
