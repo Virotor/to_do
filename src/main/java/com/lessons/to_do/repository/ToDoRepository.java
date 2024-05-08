@@ -1,8 +1,6 @@
 package com.lessons.to_do.repository;
 
 
-import com.lessons.to_do.DAO.DatabaseConnector;
-import com.lessons.to_do.DAO.HibernateSessionFactoryUtil;
 import com.lessons.to_do.models.ToDo;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -26,7 +23,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ToDoRepository {
 
-    private final DatabaseConnector dataBaseConnector;
     private final SessionFactory sessionFactory;
 
 

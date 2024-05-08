@@ -1,12 +1,11 @@
 package com.lessons.to_do.servers;
 
 
-
 import com.lessons.to_do.DTO.ToDoRequest;
 import com.lessons.to_do.DTO.ToDoUpdateRequest;
+import com.lessons.to_do.models.ToDo;
 import com.lessons.to_do.repository.ToDoRepository;
 import com.lessons.to_do.service.ToDoService;
-import com.lessons.to_do.models.ToDo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,13 +32,13 @@ public class TestToDoService {
     private ToDoService toDoService;
 
     @BeforeAll
-    public static void initTest(){
+    public static void initTest() {
 
     }
 
 
     @Test
-    public void testAddNewToDo(){
+    public void testAddNewToDo() {
         ToDoRequest toDoRequest = new ToDoRequest();
         toDoRequest.setContent("New ToDo");
         toDoRequest.setDescription("new ToDo");
@@ -53,21 +53,25 @@ public class TestToDoService {
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() {
         ToDo toDo = new ToDo();
         when(mockedToDoRepository.deleteNoteById(1L)).thenReturn(toDo);
+        when(mockedToDoRepository.getNoteById(1L)).thenReturn(Optional.of(toDo));
         assertEquals(toDoService.deleteNoteById(1L), toDo);
+        verify(mockedToDoRepository).deleteNoteById(1L);
+        verify(mockedToDoRepository).getNoteById(1L);
     }
 
 
     @Test
-    public void testNotDelete(){
-        when(mockedToDoRepository.deleteNoteById(2L)).thenReturn(null);
-        assertEquals(toDoService.deleteNoteById(2L), null);
+    public void testNotDelete() {
+        when(mockedToDoRepository.getNoteById(1L)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> toDoService.deleteNoteById(1L));
+        verify(mockedToDoRepository).getNoteById(1L);
     }
 
     @Test
-    public void testUpdate(){
+    public void testUpdate() {
         ToDoUpdateRequest toDoUpdateRequest = new ToDoUpdateRequest();
         ToDoRequest toDoRequest = new ToDoRequest();
         toDoRequest.setContent("New ToDo");
@@ -85,44 +89,47 @@ public class TestToDoService {
                 .build();
 
         when(mockedToDoRepository.updateNote(toDo)).thenReturn(toDo);
-
+        when(mockedToDoRepository.getNoteById(1L)).thenReturn(Optional.of(toDo));
         assertEquals(toDoService.updateNote(toDoUpdateRequest), toDo);
+        verify(mockedToDoRepository).getNoteById(1L);
+        verify(mockedToDoRepository).updateNote(toDo);
     }
 
     @Test
-    public void testGetAll(){
+    public void testGetAll() {
         when(mockedToDoRepository.getAllNote()).thenReturn(Stream.generate(ToDo::new).limit(10).collect(Collectors.toList()));
         assertEquals(toDoService.getAllNotes().size(), 10);
     }
 
     @Test
-    public void testGetById(){
+    public void testGetById() {
         when(mockedToDoRepository.getNoteById(1L)).thenReturn(Optional.ofNullable(ToDo.builder().id(1L).build()));
         assertTrue(toDoService.getNoteById(1L).isPresent());
     }
+
     @Test
-    public void testGetByIdNotPresent(){
+    public void testGetByIdNotPresent() {
         assertFalse(toDoService.getNoteById(2L).isPresent());
     }
 
 
     @Test
-    public void testNullPointerAddNewToDo(){
-        assertThrows(NullPointerException.class, ()->toDoService.addNewNote(null));
+    public void testNullPointerAddNewToDo() {
+        assertThrows(NullPointerException.class, () -> toDoService.addNewNote(null));
     }
 
     @Test
-    public void testNullPointerDeleteToDo(){
-        assertThrows(NullPointerException.class, ()->toDoService.deleteNoteById(null));
+    public void testNullPointerDeleteToDo() {
+        assertThrows(NullPointerException.class, () -> toDoService.deleteNoteById(null));
     }
 
     @Test
-    public void testNullPointerUpdateToDo(){
-        assertThrows(NullPointerException.class, ()->toDoService.updateNote(null));
+    public void testNullPointerUpdateToDo() {
+        assertThrows(NullPointerException.class, () -> toDoService.updateNote(null));
     }
 
     @Test
-    public void testNullPointerGetToDo(){
-        assertThrows(NullPointerException.class, ()->toDoService.getNoteById(null));
+    public void testNullPointerGetToDo() {
+        assertThrows(NullPointerException.class, () -> toDoService.getNoteById(null));
     }
 }

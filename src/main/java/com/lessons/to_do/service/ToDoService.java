@@ -33,14 +33,19 @@ public class ToDoService {
     }
 
     public Optional<ToDo> getNoteById(@NonNull Long id) {
+
         return toDoRepository.getNoteById(id);
     }
 
     public ToDo deleteNoteById(@NonNull  Long id) {
-       return toDoRepository.deleteNoteById(id);
+        getNoteById(id).orElseThrow(IllegalArgumentException::new);
+        return toDoRepository.deleteNoteById(id);
     }
 
     public ToDo updateNote(@NonNull ToDoUpdateRequest toDoUpdateRequest) {
+
+        getNoteById(toDoUpdateRequest.getId()).orElseThrow(IllegalArgumentException::new);
+
         return toDoRepository.updateNote(
                 ToDo.builder()
                         .title(toDoUpdateRequest.getToDoRequest().getTitle())
